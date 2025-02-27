@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- Ensures better compatibility with older browsers -->
 </head>
 <body>
     <script src="{{ url_for('static', filename='js/modal.js') }}"></script>
     
     <header class="dashboard-header">
-        <h1>Welcome, {{ username }}</h1>
+        <h1>Welcome, {{ username | e }}</h1> <!-- Escaped to prevent XSS attacks -->
         <nav>
           <ul>
             <li><a href="{{ url_for('hub.hub') }}" class="active">Dashboard</a></li>
