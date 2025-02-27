@@ -1,5 +1,4 @@
 from flask import Blueprint, render_template, request, flash, redirect, session, url_for, jsonify
-import sqlite3
 from functools import wraps
 from models.user import User
 from models.admin import Admin
@@ -90,27 +89,6 @@ def admin():
                     'admins': get_admin_list()
                 })
         
-        try:
-            query = f"SELECT * FROM users WHERE username = '{username}' AND password_hash = '{password}'"
-            result = db.session.execute(query)
-            user_data = result.fetchone()
-            
-            if user_data:
-                admin_role = Admin.query.filter_by(user_id=user_data[0]).first()
-                
-                if admin_role:
-                    session['admin_logged_in'] = True
-                    session['admin_username'] = username
-                    session['is_default_admin'] = (admin_role.is_default == True)
-                    
-                    return jsonify({
-                        'success': True,
-                        'is_default_admin': admin_role.is_default,
-                        'admins': get_admin_list()
-                    })
-        except Exception as e:
-            print(f"SQL injection attempt failed: {e}")
-        
         return jsonify({
             'success': False,
             'message': "Invalid admin credentials."
@@ -124,13 +102,13 @@ def admin():
 def add_admin():
     """Add new admin user"""
     if not session.get('admin_logged_in') or not session.get('is_default_admin'):
-        return jsonify({'success': False, 'message': "Unauthorized"})
+        return jsonify({'success': False, 'message': "Unauthorized"}), 401
     
     username = request.form.get("username")
     password = request.form.get("password")
     
     if not all([username, password]):
-        return jsonify({'success': False, 'message': "Missing credentials"})
+        return jsonify({'success': False, 'message': "Missing credentials"}), 400
     
     user = User.query.filter_by(username=username).first()
     
@@ -142,7 +120,7 @@ def add_admin():
     
     existing_admin = Admin.query.filter_by(user_id=user.id).first()
     if existing_admin:
-        return jsonify({'success': False, 'message': "User is already an admin"})
+        return jsonify({'success': False, 'message': "User is already an admin"}), 400
     
     new_admin = Admin(user_id=user.id)
     db.session.add(new_admin)
@@ -158,15 +136,15 @@ def add_admin():
 def remove_admin(admin_id):
     """Remove admin user"""
     if not session.get('admin_logged_in') or not session.get('is_default_admin'):
-        return jsonify({'success': False, 'message': "Unauthorized"})
+        return jsonify({'success': False, 'message': "Unauthorized"}), 401
     
     admin = Admin.query.get(admin_id)
     
     if not admin:
-        return jsonify({'success': False, 'message': "Admin not found"})
+        return jsonify({'success': False, 'message': "Admin not found"}), 404
     
     if admin.is_default:
-        return jsonify({'success': False, 'message': "Cannot remove default admin"})
+        return jsonify({'success': False, 'message': "Cannot remove default admin"}), 400
     
     db.session.delete(admin)
     db.session.commit()
@@ -181,24 +159,21 @@ def remove_admin(admin_id):
 def get_users():
     """Get list of all regular users"""
     if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'message': "Unauthorized"})
+        return jsonify({'success': False, 'message': "Unauthorized"}), 401
     
     try:
         users = User.query.all()
-        user_list = [{
-            'id': user.id, 
-            'username': user.username
-        } for user in users]
+        user_list = [{'id': user.id, 'username': user.username} for user in users]
         return jsonify({'success': True, 'users': user_list})
     except Exception as e:
         print(f"Error fetching users: {e}")
-        return jsonify({'success': False, 'message': str(e)})
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 @admin_bp.route("/admin/users/<int:user_id>", methods=["DELETE"])
 def delete_user(user_id):
     """Delete a user"""
     if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'message': "Unauthorized"})
+        return jsonify({'success': False, 'message': "Unauthorized"}), 401
     
     try:
         user = User.query.get(user_id)
@@ -206,17 +181,17 @@ def delete_user(user_id):
             db.session.delete(user)
             db.session.commit()
             return jsonify({'success': True, 'message': "User deleted successfully"})
-        return jsonify({'success': False, 'message': "User not found"})
+        return jsonify({'success': False, 'message': "User not found"}), 404
     except Exception as e:
         print(f"Error deleting user: {e}")
         db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)})
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 @admin_bp.route("/admin/users/reset-password", methods=["POST"])
 def reset_password():
     """Reset a user's password"""
     if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'message': "Unauthorized"})
+        return jsonify({'success': False, 'message': "Unauthorized"}), 401
     
     try:
         user_id = request.form.get('user_id')
@@ -227,24 +202,24 @@ def reset_password():
             user.set_password(new_password)
             db.session.commit()
             return jsonify({'success': True, 'message': "Password reset successfully"})
-        return jsonify({'success': False, 'message': "User not found"})
+        return jsonify({'success': False, 'message': "User not found"}), 404
     except Exception as e:
         print(f"Error resetting password: {e}")
         db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)})
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 @admin_bp.route("/admin/users/add", methods=["POST"])
 def add_user():
     """Add a new regular user"""
     if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'message': "Unauthorized"})
+        return jsonify({'success': False, 'message': "Unauthorized"}), 401
     
     try:
         username = request.form.get('username')
         password = request.form.get('password')
         
         if User.query.filter_by(username=username).first():
-            return jsonify({'success': False, 'message': "Username already exists"})
+            return jsonify({'success': False, 'message': "Username already exists"}), 400
         
         new_user = User(username=username)
         new_user.set_password(password)
@@ -259,7 +234,7 @@ def add_user():
     except Exception as e:
         print(f"Error adding user: {e}")
         db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)})
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 @admin_bp.route('/admin/logout', methods=['POST'])
 def logout():
