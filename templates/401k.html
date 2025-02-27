@@ -116,6 +116,19 @@
             to {opacity: 0;}
         }
     </style>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- Added a meta tag for Content Security Policy to restrict the sources from which content can be loaded -->
+    <meta name="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self';">
+
+    <!-- Added a meta tag to prevent browsers from MIME-sniffing a response away from the declared content type -->
+    <meta name="X-Content-Type-Options" content="nosniff">
+
+    <!-- Added a meta tag to prevent the page from being displayed in a frame or iframe, which helps protect against clickjacking attacks -->
+    <meta name="X-Frame-Options" content="DENY">
+
+    <!-- Added a meta tag to enable the browser's built-in XSS protection -->
+    <meta name="X-XSS-Protection" content="1; mode=block">
 </head>
 <body>
     <div class="retirement-dashboard">
@@ -136,9 +149,11 @@
         <div class="contribution-form">
             <div class="form-group">
                 <label for="amount">Contribution Amount ($)</label>
-                <input type="number" id="amount" placeholder="Enter amount" min="1" step="1" class="form-control">
+
+                <!-- Added the required attribute to the contribution amount input field to ensure that the user must enter a value before submitting the form -->
+                <input type="number" id="amount" placeholder="Enter amount" min="1" step="1" class="form-control" required>
             </div>
-            
+
             <div class="form-actions">
                 <button type="button" id="contribute-btn" class="btn">Make Contribution</button>
                 <button type="button" id="reset-btn" class="btn btn-danger">Reset Account</button>
