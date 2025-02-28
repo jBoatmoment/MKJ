@@ -306,6 +306,7 @@ function initializeApp() {
 
     
     async function handleLogin(event) {
+        
         event.preventDefault();
         const form = event.target;
         const formData = new FormData(form);
@@ -382,14 +383,14 @@ function initializeApp() {
         const formData = new FormData();
         formData.append('username', username);
         formData.append('password', password);
-
+    
         try {
             const response = await fetch('/admin/add', {
                 method: 'POST',
                 body: formData
             });
             const data = await response.json();
-
+    
             if (data.success) {
                 document.getElementById('admin-username').value = '';
                 document.getElementById('admin-password').value = '';
@@ -401,9 +402,10 @@ function initializeApp() {
                 showMessage(data.message || 'Failed to add admin');
             }
         } catch (error) {
-            showMessage('An error occurred. Please try again.');
+            showMessage('Failed to add admin');
         }
     }
+    
 
     // Handle removing admin
     window.removeAdmin = async function(adminId) {
