@@ -58,7 +58,6 @@ def contribute():
             "401k_balance": user_data["401k_balance"]
         }), 400
 
-
     time.sleep(2)  
 
     company_match = amount * 0.5

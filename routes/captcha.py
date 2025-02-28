@@ -10,7 +10,7 @@ captcha_bp = Blueprint("captcha", __name__)
 def get_captcha():
     """Generate a new CAPTCHA image - intentionally simplified"""
     
-    captcha_text = "12345"
+    captcha_text = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
     
     session['captcha_text'] = captcha_text
     

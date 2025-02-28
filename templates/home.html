@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Referrer-Policy" content="no-referrer">
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <title>Home - BokoHacks</title>
 </head>
@@ -22,8 +25,8 @@
     <section>
       <h2>Join the Challenge</h2>
       <p>Test your cybersecurity and ethical hacking skills.</p>
-      <a href="{{ url_for('login.login') }}" class ="btn">Login</a>
-      <a href="{{ url_for('register.register') }}" class ="btn">Register</a>
+      <a href="{{ url_for('login.login') }}" class="btn">Login</a>
+      <a href="{{ url_for('register.register') }}" class="btn">Register</a>
     </section>
   </main>
   <footer>
