@@ -1,8 +1,19 @@
 from flask import Blueprint, render_template, jsonify, request
+from flask_limiter import RateLimitExceeded
 import requests
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+import logging
 import json
 
 news_bp = Blueprint('news', __name__, url_prefix='/apps/news')
+
+#logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+#Limit the number of requests to the news API
+limiter = Limiter(key_func=get_remote_address, default_limits=["10 per minute"])
 
 # Base URL for the News API
 NEWS_API_BASE_URL = "https://saurav.tech/NewsAPI"
@@ -30,13 +41,6 @@ INTERNAL_NEWS = [
         "url": "#internal-only",
         "publishedAt": "2025-02-01T10:15:00Z",
         "urlToImage": ""
-    },
-    {
-        "title": "CONFIDENTIAL: Internal API Credentials",
-        "description": "API_KEY: 5x6hdPQmSK2aT9E3bL8nZ7yRfV4wX1  ADMIN_KEY: jKq2P8zX5sW7vT1yR4aB9nL6cE3hG",
-        "url": "#internal-only",
-        "publishedAt": "2025-01-30T14:45:00Z",
-        "urlToImage": ""
     }
 ]
 
@@ -45,19 +49,36 @@ def news_page():
     """Render the news page"""
     return render_template('news.html')
 
+
+def validate_category(input_category):
+    if input_category not in CATEGORY_MAPPING:
+        return 'business'
+    return input_category
+
+def validate_filter(input_filter):
+    try:
+        filter_options = json.loads(input_filter)
+        if not isinstance(filter_options, dict):
+            raise ValueError("Filter must be a valid dictionary")
+        return filter_options
+    except json.JSONDecodeError:
+        logger.exception(f"Invalid filter parameter: {input_filter}")
+        return {}
+
 @news_bp.route('/fetch', methods=['GET'])
+@limiter.limit("5 per minute")    
 def fetch_news():
     """Fetch news from the News API with a vulnerability"""
     try:
         # Get category from request, default to business
-        category = request.args.get('category', 'business')
-        
+        category = request.args.get(validate_category('category'))
+
         # Map our category to API category
         api_category = CATEGORY_MAPPING.get(category, 'business')
         api_url = f"{NEWS_API_BASE_URL}/top-headlines/category/{api_category}/{DEFAULT_COUNTRY}.json"
         
-        print(f"Fetching news from: {api_url}")
-        
+        logger.info(f"Fetching news from {api_url}")
+
         # Fetch news from external API
         response = requests.get(api_url, timeout=10)
         
@@ -67,17 +88,8 @@ def fetch_news():
             
             filter_param = request.args.get('filter', '{}')
             
-            try:
-                filter_options = json.loads(filter_param)
-                print(f"Filter options: {filter_options}")
-                
-                if filter_options.get('showInternal') == True:
-                    # Add internal news to the results
-                    print("Adding internal news to results!")
-                    articles = INTERNAL_NEWS + articles
-            except json.JSONDecodeError:
-                print(f"Invalid filter parameter: {filter_param}")
-            
+            validate_filter(filter_param)
+
             # Transform the data to match our expected format
             transformed_data = {
                 'success': True,
@@ -102,8 +114,15 @@ def fetch_news():
                 'error': f'Failed to fetch news. Status code: {response.status_code}'
             }), response.status_code
     except Exception as e:
-        print(f"Error fetching news: {e}")
+        logger.exception(f"Error fetching news: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
         }), 500
+    
+@news_bp.errorhandler(RateLimitExceeded)
+def ratelimit_handler(e):
+    return jsonify({
+        'success': False,
+        'error': 'Rate limit exceeded. Please try again later.'
+    }), 429

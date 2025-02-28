@@ -275,7 +275,7 @@
             if (window.getComputedStyle(devOptions).display !== 'none') {
                 try {
                     const filterJSON = document.getElementById('filter-json').value;
-                    if (filterJSON.trim()) {
+                    if (filterJSON.trim() && filterJSON !== '') {
                         currentSettings.filters = JSON.parse(filterJSON);
                     }
                 } catch (e) {
@@ -379,21 +379,6 @@
             
             newsContainer.innerHTML = html;
         }
-        
-        // Debug console
-        console.log("%c🔍 News App Loaded", "color: #501214; font-size: 14px; font-weight: bold;");
-        console.log("%cTip for developers: Press 'F12' for developer tools and type 'showDevTools()' to display advanced options", "color: #333; font-style: italic;");
-        
-        window.showDevTools = function() {
-            console.log("%c🛠️ Enabling developer options...", "color: green; font-weight: bold;");
-            const devOptions = document.getElementById('dev-options');
-            if (devOptions) {
-                devOptions.style.display = 'block';
-                console.log("%c✅ Developer options enabled!", "color: green;");
-                console.log("%cHint: Try setting the filter JSON to:", "color: #666;");
-                console.log('%c{"showInternal": true}', "color: blue; font-family: monospace; background: #f5f5f5; padding: 3px; border-radius: 3px;");
-            }
-        };
         
         // Search button functionality (non-functional for this demo)
         document.getElementById('search-button').addEventListener('click', function() {

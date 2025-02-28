@@ -1,8 +1,12 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from models.user import User
+from flask_wtf import CSRFProtect
 from extensions import db
 
+app = Flask(__name__)
+csrf = CSRFProtect(app)
 register_bp = Blueprint("register", __name__)
+
 
 @register_bp.route("/register", methods=["GET", "POST"])
 def register():

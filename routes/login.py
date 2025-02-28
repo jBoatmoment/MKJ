@@ -1,14 +1,15 @@
 from flask import Blueprint, render_template, request, flash, redirect, session, url_for, Flask
-import os
-from flask_wtf.csrf import CSRFProtect
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_wtf import CSRFProtect
 from models.user import User
 from extensions import db
+import os
 
-login_bp = Blueprint("login", __name__)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
-csrf_token = CSRFProtect(app)
+#csrf_token = CSRFProtect(app)
+
+login_bp = Blueprint("login", __name__)
 
 
 @login_bp.route("/login", methods=["GET", "POST"])

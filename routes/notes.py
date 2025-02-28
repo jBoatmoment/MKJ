@@ -4,6 +4,11 @@ from models.user import User
 from models.note import Note
 from datetime import datetime
 from sqlalchemy import text
+import logging
+
+#logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 notes_bp = Blueprint('notes', __name__, url_prefix='/apps/notes')
 
@@ -25,7 +30,7 @@ def notes():
         user_id = current_user.id
 
     all_notes = Note.query.filter_by(user_id=user_id).order_by(Note.created_at.desc()).all()
-    print(f"Loading notes page - Found {len(all_notes)} notes for user {user_id}")
+    logger.info(f"Loading notes page - Found {len(all_notes)} notes for user {user_id}")
     
     return render_template('notes.html', notes=all_notes, current_user_id=current_user.id)
 
@@ -46,7 +51,7 @@ def create_note():
         return jsonify({'success': False, 'error': 'Title and content are required'}), 400
     
     try:
-        print(f"Creating note - Title: {title}, Content: {content}")
+        logger.info(f"Creating note - Title: {title}, Content: {content}")
         
         note = Note(
             title=title,
@@ -58,7 +63,7 @@ def create_note():
         db.session.add(note)
         db.session.commit()
         
-        print(f"Note created with ID: {note.id}")
+        logger.info(f"Note created with ID: {note.id}")
         
         return jsonify({
             'success': True,
@@ -72,7 +77,7 @@ def create_note():
             }
         })
     except Exception as e:
-        print(f"Error creating note: {e}")
+        logger.exception(f"Error creating note: {e}")
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
 
@@ -87,13 +92,13 @@ def search_notes():
         return jsonify({'success': False, 'error': 'User not found'}), 404
 
     query = request.args.get('q', '')
-    print(f"Search query: {query}")
+    logging.info(f"Search query: {query}")
     
     try:
         sql = f"SELECT * FROM notes WHERE title LIKE '%{query}%' OR content LIKE '%{query}%'"
         
         # Log the raw SQL for debugging
-        print(f"Executing SQL: {sql}")
+        logger.info(f"Executing SQL: {sql}")
         
         # Execute the raw SQL
         result = db.session.execute(text(sql))
@@ -119,13 +124,13 @@ def search_notes():
             }
             notes.append(note)
         
-        print(f"Found {len(notes)} matching notes")
+        logger.info(f"Found {len(notes)} matching notes")
         return jsonify({
             'success': True,
             'notes': notes
         })
     except Exception as e:
-        print(f"Error searching notes: {e}")
+        logger.exception(f"Error searching notes: {e}")
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
     
@@ -143,18 +148,18 @@ def delete_note(note_id):
     try:
         note = Note.query.get(note_id)
         if not note:
-            print(f"Note not found: {note_id}")
+            logger.error(f"Note not found: {note_id}")
             return jsonify({'success': False, 'error': f'Note with ID {note_id} not found'}), 404
         
-        print(f"Deleting note ID: {note_id}, Title: {note.title}, Owner: {note.user_id}")
+        logger.info(f"Deleting note ID: {note_id}, Title: {note.title}, Owner: {note.user_id}")
         
         db.session.delete(note)
         db.session.commit()
         
-        print(f"Note {note_id} deleted successfully")
+        logger.info(f"Note {note_id} deleted successfully")
         return jsonify({'success': True})
     except Exception as e:
-        print(f"Error deleting note: {e}")
+        logger.exception(f"Error deleting note: {e}")
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
     
@@ -163,26 +168,26 @@ def debug_database():
     """Debug route to check database contents"""
     try:
         users = User.query.all()
-        print("\nAll Users:")
+        logger.info("\nAll Users:")
         for user in users:
-            print(f"ID: {user.id}, Username: {user.username}")
+            logger.info(f"ID: {user.id}, Username: {user.username}")
         
         notes = Note.query.all()
-        print("\nAll Notes:")
+        logging.info("\nAll Notes:")
         for note in notes:
-            print(f"ID: {note.id}, Title: {note.title}, User ID: {note.user_id}")
+            logger.info(f"ID: {note.id}, Title: {note.title}, User ID: {note.user_id}")
         
         sql = text("SELECT * FROM notes")
         result = db.session.execute(sql)
         rows = result.fetchall()
-        print("\nRaw SQL Notes Query Result:")
+        logger.info("\nRaw SQL Notes Query Result:")
         for row in rows:
-            print(row)
+            logger.info(row)
             
         return jsonify({
             'users': [{'id': u.id, 'username': u.username} for u in users],
             'notes': [note.to_dict() for note in notes]
         })
     except Exception as e:
-        print(f"Debug Error: {e}")
+        logger.exception(f"Debug Error: {e}")
         return jsonify({'error': str(e)}), 500
