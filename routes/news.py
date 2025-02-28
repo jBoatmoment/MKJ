@@ -75,7 +75,7 @@ def fetch_news():
     """Fetch news from the News API with a vulnerability"""
     try:
         # Get category from request, default to business
-        category = request.args.get(validate_category('category'))
+        category = request.args.get('category', "business")
 
         # Map our category to API category
         api_category = CATEGORY_MAPPING.get(category, 'business')

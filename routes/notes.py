@@ -82,8 +82,8 @@ def create_note():
     
 
     try:
-        if not validate_note_input(title, content):
-            return jsonify({'success': False, 'error': 'Not valid inputs'})
+        # if not validate_note_input(title, content):
+        #     return jsonify({'success': False, 'error': 'Not valid inputs'})
         logger.info(f"Creating note - Title: {title}, Content: {content}")
         
         note = Note(

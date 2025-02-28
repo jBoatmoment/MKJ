@@ -62,9 +62,6 @@ function saveNote() {
     
     fetch('/apps/notes/create', {
         method: 'POST',
-        headers: {
-            'CSRF-Token': document.querySelector('meta[name="csrf_token"]').content
-        },
         body: formData
     })
     .then(response => {
