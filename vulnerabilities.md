@@ -5,7 +5,7 @@ Overall vulnerabilities:
 -Lack of rate limiters (DDOS vunerable)
 
 All sections:
-+Added meta security in html files
++Added standard meta security in html files
 
 about section:
 +HTTPS redirection
