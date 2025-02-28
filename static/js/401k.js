@@ -19,7 +19,10 @@ function getBalance() {
     }
 
     fetch(`/apps/401k/balance`)
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error("Network response was not ok");
+            return res.json();
+        })
         .then(data => {
             fundsElement.innerText = `$${data.funds}`;
             balanceElement.innerText = `$${data['401k_balance']}`;
@@ -55,10 +58,13 @@ function contribute() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: amount })
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) throw new Error("Network response was not ok");
+        return res.json();
+    })
     .then(data => {
         if (data.message.includes("Error") || data.message.includes("Invalid")) {
-            showToast(data.message, "error");
+            showToast("Contribution failed: " + data.message, "error");
         } else {
             showToast(data.message, "success");
         }
@@ -77,8 +83,6 @@ function contribute() {
     });
 }
 
-// Add these functions to the 401k.js file in static/js directory
-
 function resetAccount() {
     if (!confirm("Are you sure you want to reset your account? This will set your funds to $10,000 and your 401k balance to $0.")) {
         return;
@@ -90,7 +94,10 @@ function resetAccount() {
         method: "POST",
         headers: { "Content-Type": "application/json" }
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) throw new Error("Network response was not ok");
+        return res.json();
+    })
     .then(data => {
         showToast(data.message, "success");
         
@@ -111,7 +118,6 @@ function resetAccount() {
 function initializeApp() {
     console.log("401k app initialized");
     
-    // Look for the buttons by ID
     const contributeBtn = document.getElementById("contribute-btn");
     if (contributeBtn) {
         contributeBtn.addEventListener("click", contribute);
