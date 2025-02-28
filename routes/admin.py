@@ -3,8 +3,11 @@ from functools import wraps
 from models.user import User
 from models.admin import Admin
 from extensions import db
+import logging
 
 admin_bp = Blueprint("admin", __name__)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 DEFAULT_ADMIN = {
     "username": "admin",
@@ -31,9 +34,9 @@ def init_admin_db():
             )
             db.session.add(admin_role)
             db.session.commit()
-            print("Default admin account created/updated")
+            logger.info("Default admin account created/updated")
     except Exception as e:
-        print(f"Error initializing admin database: {e}")
+        logger.exception(f"Error initializing admin database: {e}")
         db.session.rollback()
 
 def get_admin_list():
@@ -166,7 +169,7 @@ def get_users():
         user_list = [{'id': user.id, 'username': user.username} for user in users]
         return jsonify({'success': True, 'users': user_list})
     except Exception as e:
-        print(f"Error fetching users: {e}")
+        logger.exception(f"Error fetching users: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
 @admin_bp.route("/admin/users/<int:user_id>", methods=["DELETE"])
@@ -183,7 +186,7 @@ def delete_user(user_id):
             return jsonify({'success': True, 'message': "User deleted successfully"})
         return jsonify({'success': False, 'message': "User not found"}), 404
     except Exception as e:
-        print(f"Error deleting user: {e}")
+        logger.exception(f"Error deleting user: {e}")
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
 
@@ -204,7 +207,7 @@ def reset_password():
             return jsonify({'success': True, 'message': "Password reset successfully"})
         return jsonify({'success': False, 'message': "User not found"}), 404
     except Exception as e:
-        print(f"Error resetting password: {e}")
+        logger.exception(f"Error resetting password: {e}")
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
 
@@ -232,7 +235,7 @@ def add_user():
             'user': {'id': new_user.id, 'username': new_user.username}
         })
     except Exception as e:
-        print(f"Error adding user: {e}")
+        logger.exception(f"Error adding user: {e}")
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
 
