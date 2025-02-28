@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, render_template, jsonify, request, Flask
 from flask_limiter import RateLimitExceeded
+from flask_wtf import CSRFProtect
 import requests
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -7,6 +8,9 @@ import logging
 import json
 
 news_bp = Blueprint('news', __name__, url_prefix='/apps/news')
+
+app = Flask(__name__)
+csrf_token = CSRFProtect(app)
 
 #logging
 logging.basicConfig(level=logging.INFO)

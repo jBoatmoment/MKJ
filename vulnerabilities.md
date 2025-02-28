@@ -1,6 +1,6 @@
 Overall vulnerabilities:
 -Direct querey acess to database (SQL Injection)
--Direct User inputs leading to cross-site scripting
+-Direct User inputs leading to cross-site scripting (XXS)
 -Leakage of confidential information
 -Lack of rate limiters (DDOS vunerable)
 

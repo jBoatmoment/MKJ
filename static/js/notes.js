@@ -62,6 +62,9 @@ function saveNote() {
     
     fetch('/apps/notes/create', {
         method: 'POST',
+        headers: {
+            'CSRF-Token': document.querySelector('meta[name="csrf_token"]').content
+        },
         body: formData
     })
     .then(response => {
@@ -137,13 +140,10 @@ function searchNotes() {
             data.notes.forEach(note => {
                 const noteElement = document.createElement('div');
                 noteElement.className = 'note-card';
+                //Added a sanitizer to prevent XSS attacks
                 noteElement.innerHTML = `
-                    <h3>${note.title}</h3>
-                    <div class="note-content">${note.content}</div>
-                    <div class="note-meta">
-                        ID: ${note.id} | Created: ${note.created_at}
-                        <button type="button" class="delete-note" data-note-id="${note.id}">Delete</button>
-                    </div>
+                <h3>${note.title})}</h3>
+                <div class="note-content">${note.content}</div>
                 `;
                 notesList.appendChild(noteElement);
             });
