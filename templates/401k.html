@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf_token" content="{{ csrf_token }}"
     <title>401(k) Retirement Savings</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
@@ -160,9 +161,11 @@
             </div>
         </div>
         
+        {% if is_admin %}
         <div class="vulnerability-hint">
             <strong>Notice:</strong> Larry has been banned for malicious activity.
         </div>
+        {% endif %}
     </div>
 
     <div id="toast-container"></div>

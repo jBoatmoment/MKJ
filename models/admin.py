@@ -1,5 +1,6 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
+from extensions import db
 
 db = SQLAlchemy()
 
@@ -9,10 +10,10 @@ class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user_credentials.id'), nullable=False)
     is_default = db.Column(db.Boolean, default=False)
 
-    user = db.relationship('User', backref=db.backref('admins', lazy=True))
+    user = db.relationship('User', backref=db.backref('admins', lazy=True), foreign_keys=[user_id])
 
 class User(db.Model):
     __tablename__ = 'user_credentials'

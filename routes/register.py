@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session, Flask
 from models.user import User
 from flask_wtf import CSRFProtect
 from extensions import db
