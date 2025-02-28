@@ -138,7 +138,6 @@ function renderNews(data) {
     newsItems.forEach(item => {
         const date = new Date(item.date || new Date()).toLocaleDateString();
         const hasImage = item.imageUrl && item.imageUrl !== 'null';
-        
         html += `
             <div class="news-item">
                 <div class="news-title">${item.title}</div>
@@ -220,6 +219,9 @@ function importNewsData() {
     
     fetch('/apps/news/import', {
         method: 'POST',
+        headers: {
+            'CSRF-Token': document.querySelector('meta[name="csrf_token"]').content
+        },
         body: formData
     })
     .then(response => response.json())

@@ -29,6 +29,13 @@ def validate_note_input(title,content):
     if len(sTitle) > 100 or len(sContent) > 5000:
         return False, "Title or content exceeds allowed length"
     return True
+def validate_note_input(search):
+    sSearch = escape(search)
+    if not sSearch:
+        return False, "Search is required"
+    if len(sSearch) > 100:
+        return False, "Search exceeds allowed length"
+    return True
 
 def is_admin(user_id):
     admin = Admin.query.filter_by(user_id=user_id).first()
@@ -55,8 +62,8 @@ def notes():
 
     all_notes = Note.query.filter_by(user_id=user_id).order_by(Note.created_at.desc()).all()
     logger.info(f"Loading notes page - Found {len(all_notes)} notes for user {user_id}")
-    #if (is_admin(user_id)):
-    #    return render_template('notes.html', notes=all_notes, current_user_id = current_user.id, is_admin=True)
+    # if (is_admin(user_id)):
+    #     return render_template('notes.html', notes=all_notes, current_user_id = current_user.id, is_admin=True)
     return render_template('notes.html', notes=all_notes, current_user_id=current_user.id)
 
 @limiter.limit("5 per minute")
@@ -121,10 +128,18 @@ def search_notes():
     logging.info(f"Search query: {query}")
     
     try:
-
+        if not query.strip():
+            return jsonify({'success': False, 'error': 'Search query is required'}), 400
+        if not validate_note_input(query):
+            return jsonify({'success': False, 'error': 'Not valid inputs'})
+        
         notes = Note.query.filter(
             (Note.title.like(f'%{query}%')) | (Note.content.like(f'%{query}%'))
              ).all()
+        
+        if not notes:
+            logger.info("No notes found")
+            return jsonify({'success': False, 'error': "No notes matching search query"}), 404
     
         notes_list = [{
             'id' : note.id,
@@ -144,7 +159,7 @@ def search_notes():
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
     
-
+@limiter.limit("5 per minute")
 @notes_bp.route('/delete/<int:note_id>', methods=['DELETE'])
 def delete_note(note_id):
     """Delete a note with intentional access control vulnerability"""
