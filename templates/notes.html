@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecureNotes v0.1-beta</title>
+    <title>SecureNotes v0.1</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="Content-Security-Policy" content="default-src 'self';">
+    <meta name="X-Content-Type-Options" content="nosniff">
+    <meta name="X-Frame-Options" content="DENY">
+    <meta name="X-XSS-Protection" content="1; mode=block">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
     .notes-app {
@@ -149,17 +154,19 @@
 <body>
     <div class="notes-app">
         <div class="notes-header">
-            <h2>SecureNotes v0.1-beta</h2>
-            <p class="app-desc">A totally secure note-taking application</p>
+            <h2>SecureNotes</h2>
+            <p class="app-desc">A secure note-taking application</p>
         </div>
         
         <div class="notes-container">
             <div id="message-area"></div>
             
+            {% if is_admin %}
             <div class="admin-notice">
                 <strong>Notice for admin users:</strong> Database maintenance scheduled. Table structure: notes(id, title, content, created_at, user_id)
                 <button class="close-notice">×</button>
             </div>
+            {% endif %}
 
             <form id="note-form">
                 <div class="form-header">
@@ -180,8 +187,8 @@
             <div id="notes-list">
                 {% for note in notes %}
                 <div class="note-card">
-                    <h3>{{ note.title | safe }}</h3>
-                    <div class="note-content">{{ note.content | safe }}</div>
+                    <h3>{{ note.title }}</h3>
+                    <div class="note-content">{{ note.content }}</div>
                     <div class="note-meta">
                         ID: {{ note.id }} | Created: {{ note.created_at }}
                         <button type="button" class="delete-btn" data-note-id="{{ note.id }}">Delete</button>

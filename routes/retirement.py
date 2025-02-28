@@ -1,10 +1,14 @@
-from flask import Blueprint, render_template, jsonify, request, session
+from flask import Blueprint, render_template, jsonify, request, session, Flask
 from extensions import db
 from models.user import User
 import time
+import os
+from flask_wtf import CSRFProtect
 from sqlalchemy import text
 
 retirement_bp = Blueprint("retirement", __name__, url_prefix="/apps/401k")
+app = Flask(__name__)
+csrf_token = CSRFProtect(app)
 
 user_accounts = {
     "alice": {"funds": 10000, "401k_balance": 5000},
@@ -12,6 +16,9 @@ user_accounts = {
     "charlie": {"funds": 15000, "401k_balance": 8084},
     "admin": {"funds": 20000, "401k_balance": 12000}
 }
+app.config['SESSION_COOKIE_SECURE'] = True  # Only send cookies over HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent JavaScript access
+app.config['SECRET_KEY'] = os.urandom(24)  # Set a secure random secret key
 
 @retirement_bp.route("/")
 def retirement_dashboard():

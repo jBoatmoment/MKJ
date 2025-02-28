@@ -1,14 +1,19 @@
-from flask import Blueprint, render_template, request, jsonify, session, send_from_directory
+from flask import Blueprint, render_template, request, jsonify, session, send_from_directory, Flask
 from extensions import db
 from models.user import User
 from models.file import File
 import os
+from flask_wtf import CSRFProtect
 import mimetypes
 from werkzeug.utils import secure_filename
+import secrets
 
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 UPLOAD_FOLDER = os.path.abspath('uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app = Flask(__name__)
+csrf_token = CSRFProtect(app)
+
 
 files_bp = Blueprint('files', __name__, url_prefix='/apps/files')
 
