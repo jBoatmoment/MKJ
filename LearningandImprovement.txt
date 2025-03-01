@@ -15,4 +15,19 @@ Things to learn and improve upon:
 	-Test items and view why they either work or don't work
 	-Can use AI to provide more information in diffferent situtations
 
+Cybersecurity:
+For XXS attacks:
+	-Use of a Cross Reference Forgery token can provide security for scripts to only run from the main website
+SQL injections:
+	-Sanitization can remove harmful characters that can lead to data leakage or infrastructure damage
+DDOS:
+	-Implement limiters to limit the amount of requests for an action to ensure service can be constantly accessed without 			spam
+User security:
+	-Hashing passwords is important to ensure security for users in the database
+	-Limit login attempts to reduce the ability for exploiters to brute-force their way through
+Session riding:
+	-Use secure cookies & session managements to reduce outside scripts from using a session to enter a local device
+Bots:
+	-CAPTCHA can reduce the amount of bots attempting to register, maintaing storage in the database
+
 
