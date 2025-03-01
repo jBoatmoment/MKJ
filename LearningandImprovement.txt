@@ -1,0 +1,18 @@
+Things to learn and improve upon:
+-For any features added, the originial behavior should be maintained
+	-Continous testing while implementing new features
+	-View how the flow of data is managed such as the model files
+-Have all possible resource avaliable to team to ensure no errors among team members and clients
+	-Including packages that allow more security such as the Flask-WTF and Flask-Limiter
+	-Installing cleaners such as DOMPurify to allow sanitization
+-Have documentation to ensure protocol and maintain organization during the coding process involving multiple people
+-Organize in future aspects to ensure everyone is on the same timeline
+-Provide AI more context to provide a proper solution in a specific environment
+	-Solutions tend to not consider files outside since it has no information on the file structure
+	-Providing more information causes device to slow during testing
+-In a professional environment, constantly document changes for other programmers to understand any differences in the program
+-Understand that this is a learning process
+	-Test items and view why they either work or don't work
+	-Can use AI to provide more information in diffferent situtations
+
+
