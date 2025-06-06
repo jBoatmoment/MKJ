@@ -2,7 +2,9 @@
 An Application Security Challenge Platform for Texas State University's 2025 BokoHacks
 
 ## Overview
-This project is a deliberately vulnerable web application designed to help students learn about common web security vulnerabilities through hands-on practice. It includes various challenges focusing on SQL injection, XSS (Cross-Site Scripting), access control vulnerabilities, and authentication bypass techniques.
+This repository contains a deliberately vulnerable web application that was provided to us as part of a security-focused project. The goal was to identify, analyze, and patch common web security vulnerabilities through hands-on practice. The application includes challenges related to SQL injection, XSS (Cross-Site Scripting), broken access control, and authentication bypass.
+
+We worked on discovering and fixing these vulnerabilities to better understand real-world security flaws and how to defend against them.
 
 ## Requirements
 - Python 3.8 or higher → [Download Python](https://www.python.org/downloads/)
